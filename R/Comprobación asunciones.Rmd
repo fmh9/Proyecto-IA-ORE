@@ -1,0 +1,19 @@
+---
+title: "Comprobación asunciones"
+author: "Alfons Juan Fuente"
+date: "2026-05-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#LIBRERÍAS
+```{r}
+library(tidyverse)
+library(car)      # Para VIF
+library(broom)    # Para limpiar resultados
+library(ggplot2)
+```
+
+#CARGA DE DATOS

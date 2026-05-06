@@ -31,3 +31,6 @@ print(variables_importantes)
 
 # 8. Visualización de la importancia
 plot(cv_lasso) # Este gráfico muestra cómo Lasso va eliminando variables
+
+
+## 
