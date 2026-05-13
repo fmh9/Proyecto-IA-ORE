@@ -133,6 +133,17 @@ MODULE_NAMES = {
 }
 
 # ─────────────────────────────────────────────
+# MAPEO DE NIVEL EDUCATIVO (español -> clave del modelo)
+# ─────────────────────────────────────────────
+EDUCATION_NAMES = {
+    "Bachillerato o equivalente":   "A Level or Equivalent",
+    "Titulación universitaria":     "HE Qualification",
+    "Educación secundaria o inferior": "Lower Than A Level",
+    "Sin titulación formal":        "No Formal Quals",
+    "Postgrado o máster":           "Post Graduate Qualification",
+}
+
+# ─────────────────────────────────────────────
 # CARGA DEL MODELO
 # ─────────────────────────────────────────────
 @st.cache_resource
@@ -186,14 +197,15 @@ def build_feature_vector(
     # Convocatoria fijada a 2014J (la más reciente del dataset)
     row["code_presentation_2014J"] = 1
 
+    education_key = EDUCATION_NAMES.get(education, education)
     edu_map = {
         "HE Qualification":            "highest_education_HE Qualification",
         "Lower Than A Level":          "highest_education_Lower Than A Level",
         "No Formal Quals":             "highest_education_No Formal quals",
         "Post Graduate Qualification": "highest_education_Post Graduate Qualification",
     }
-    if education in edu_map:
-        row[edu_map[education]] = 1
+    if education_key in edu_map:
+        row[edu_map[education_key]] = 1
 
     imd_map = {
         "10-20%": "imd_band_10-20",   "20-30%": "imd_band_20-30%",
@@ -276,7 +288,7 @@ def generate_recommendations(
         })
 
     # --- Nivel educativo ---
-    if education in ["Lower Than A Level", "No Formal Quals"]:
+    if education in ["Educación secundaria o inferior", "Sin titulación formal"]:
         recs.append({
             "icon": "🧱",
             "titulo": "Apoyo en formación previa",
@@ -391,7 +403,7 @@ with st.sidebar:
     student_name = st.text_input(
         "Nombre del estudiante",
         placeholder="Ej: María García",
-        help="Introduce tu nombre para una mejor personalización de las recomendaciones.",
+        help="Introduce el nombre para personalizar las recomendaciones.",
     )
     st.markdown("---")
 
@@ -402,13 +414,13 @@ with st.sidebar:
     )
     studied_credits = st.selectbox(
         "Créditos matriculados",
-        options=[30, 60, 90, 120, 150],
+        options=[30, 60, 90, 120, 150, 240, 300, 360, 480, 655],
         index=1,
     )
     total_clicks = st.number_input(
-        "Número de interacciones semanales con la plataforma virtual",
+        "Clics en plataforma virtual (VLE)",
         min_value=0, max_value=30000, value=800, step=50,
-        help="Número de interacciones semanales con el entorno virtual de aprendizaje.",
+        help="Número total de interacciones con el entorno virtual de aprendizaje.",
     )
     st.markdown("---")
 
@@ -423,13 +435,7 @@ with st.sidebar:
     st.markdown("## 🧑‍🎓 Perfil del Estudiante")
     education = st.selectbox(
         "Nivel de educación más alto",
-        options=[
-            "Sin estudios formales",
-            "ESO",
-            "Formación Profesional",
-            "Bachillerato o equivalente",
-            "Postgrado",
-        ],
+        options=list(EDUCATION_NAMES.keys()),
     )
     imd_band = st.selectbox(
         "Nivel socioeconómico (IMD)",
@@ -442,7 +448,7 @@ with st.sidebar:
     )
     age_band = st.selectbox(
         "Rango de edad",
-        options=["Menor a 35", "Entre 35 y 55", "55 o más"],
+        options=["Under 35", "35-55", "55+"],
     )
     disability = st.toggle("¿Tiene alguna discapacidad reconocida?", value=False)
 
